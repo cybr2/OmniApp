@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <div class="text-center">
+            <h1 class="text-4xl font-bold text-red-600">Oops!</h1>
+            <p class="mt-2 text-xl text-gray-700">Something went wrong.</p>
+            <p class="mt-4 text-gray-600">Error Code: <span class="font-semibold text-red-600">{{ error_code }}</span></p>
+            <p class="mt-2 text-gray-600">{{ error_message }}</p>
+        </div>
+
+        <div class="mt-6 text-center">
+            <a href="/" class="text-blue-500 hover:underline">Go Back Home</a>
+        </div>
+    </div>
+
+</body>
+</html>

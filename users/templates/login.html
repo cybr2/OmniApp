@@ -1,0 +1,33 @@
+{% extends "./layout.html" %}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block main %}
+<section class="min-h-screen flex items-center justify-center bg-gray-50">
+    <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+        <h1 class="text-2xl font-bold text-center mb-6 text-gray-800">Login</h1>
+
+        <!-- Display messages -->
+        {% if message %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+
+        <!-- Google Login Button -->
+        <div class="text-center">
+            <a href="{% url 'social:begin' 'google-oauth2' %}" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded inline-flex items-center w-full justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22.5 12.275c0-.8-.075-1.55-.2-2.275H12v4.325h5.825c-.25 1.325-1.025 2.45-2.2 3.175v2.65h3.55c2.075-1.9 3.275-4.725 3.275-7.875Z" />
+                    <path d="M12 23c3.15 0 5.8-1.05 7.725-2.85l-3.55-2.65c-.975.65-2.2 1.025-3.55 1.025-2.725 0-5.025-1.825-5.85-4.3H4.2v2.7C6.15 20.55 8.9 23 12 23Z" />
+                    <path d="M6.15 14.225c-.225-.65-.35-1.35-.35-2.225s.125-1.575.35-2.225V7.1H3.45C2.725 8.55 2.25 10.2 2.25 12s.475 3.45 1.2 4.9l2.7-2.675Z" />
+                    <path d="M12 4.675c1.5 0 2.825.525 3.875 1.55l2.9-2.9C16.075 1.675 13.425.65 12 .65c-3.1 0-5.85 2.45-7.8 4.95l2.7 2.675C6.975 6.5 9.275 4.675 12 4.675Z" />
+                </svg>
+                Login with Google
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
