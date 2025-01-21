@@ -22,3 +22,7 @@ media/
 
 # Git
 *.swp
+
+# Ignore client secrets
+email_feature/config/client_secret.json
+
