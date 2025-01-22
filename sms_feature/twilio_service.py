@@ -45,4 +45,16 @@ def get_message_by_sender(sender):
     except Exception as e:
         raise Exception(f"Error fetching messages for sender {sender}: {e}")
 
-# def call()
+def call(to_number):
+    try:
+        call = client.calls.create(
+            url="http://demo.twilio.com/docs/voice.xml",
+            to=to_number,
+            from_=settings.TWILIO_PHONE_NUMBER
+        )
+        print(f"Call SID: {call.sid}, Status: {call.status}")
+        return call.sid
+    except Exception as e:
+        print(f"Error making call: {e}")
+        raise e
+    
