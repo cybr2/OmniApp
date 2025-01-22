@@ -7,4 +7,5 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('inbox/', views.inbox_sms_view, name='inbox_sms'),
     path('inbox/<str:sender>/', views.view_sms, name='view_sms'),
+    path('call/', views.initiate_call_view, name='call'),
 ]

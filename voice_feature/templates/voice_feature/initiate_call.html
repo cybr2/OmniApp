@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Initiate Call
+{% endblock %}
+
+{% block head %}
+    <!-- Add any additional head content here if needed -->
+{% endblock %}
+
+{% block main %}
+<section class="bg-purple-50 py-12">
+    <div class="container mx-auto px-4">
+        <!-- Header Section -->
+        <div class="bg-purple-700 text-white p-6 rounded-lg shadow-lg mb-8">
+            <h1 class="text-3xl font-bold">Initiate a Call</h1>
+            <p class="mt-2 text-gray-200">Easily initiate a call using the OmniApp Call Feature by entering the number below.</p>
+        </div>
+
+        <!-- Call Form Section -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            {% if error %}
+            <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <p><strong>Error:</strong> {{ error }}</p>
+            </div>
+            {% endif %}
+
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                <div class="space-y-2">
+                    <label for="to_number" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                    <input type="text" id="to_number" name="to_number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600" placeholder="Enter the phone number to call" required>
+                </div>
+                <button type="submit" class="w-full bg-purple-600 text-white font-medium py-3 rounded-lg hover:bg-purple-700 transition duration-200">Initiate Call</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

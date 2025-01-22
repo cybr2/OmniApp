@@ -45,7 +45,7 @@ def get_message_by_sender(sender):
     except Exception as e:
         raise Exception(f"Error fetching messages for sender {sender}: {e}")
 
-def call(to_number):
+def make_call(to_number):
     try:
         call = client.calls.create(
             url="http://demo.twilio.com/docs/voice.xml",

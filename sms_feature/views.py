@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .twilio_service import send_sms, get_all_sms, get_message_by_sender, call
+from .twilio_service import send_sms, get_all_sms, get_message_by_sender, make_call
 from phonenumbers import parse, is_valid_number, format_number, PhoneNumberFormat
 
 
@@ -60,7 +60,7 @@ def view_sms(request, sender):
         # Handle errors fetching the messages
         return render(request, 'sms_feature/view_sms.html', {'error': str(e), 'messages': None})
 
-def call_view(request):
+def initiate_call_view(request):
     if request.method == 'POST':
         to_number = request.POST.get('to_number', '').strip()
 
@@ -70,7 +70,7 @@ def call_view(request):
         try:
             # Sanitize the phone number
             sanitized_number = sanitize_phone_number(to_number)
-            call(sanitized_number)
+            make_call(sanitized_number)
             success_message = f"Call successfully made to {sanitized_number}!"
             return render(request, 'sms_feature/success.html', {'success_message': success_message})
 
@@ -78,3 +78,4 @@ def call_view(request):
             return render(request, 'sms_feature/call.html', {'error': str(ve)})
         except Exception as e:
                 return render(request, 'sms_feature/call.html', {'error': f'Error making call: {e}'})
+        

@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Send SMS
+    Call Features
 {% endblock %}
 
 {% block head %}
@@ -13,21 +13,21 @@
     <div class="container mx-auto px-4">
         <!-- Header Section -->
         <div class="bg-blue-600 text-white p-6 rounded-lg shadow-lg mb-8">
-            <h1 class="text-3xl font-bold">SMS Features</h1>
-            <p class="mt-2 text-gray-200">Easily manage and send SMS messages through OmniApp's SMS feature.</p>
+            <h1 class="text-3xl font-bold">Call Features</h1>
+            <p class="mt-2 text-gray-200">Manage and make calls effortlessly through OmniApp's call feature.</p>
         </div>
 
         <!-- List Section -->
         <div class="bg-white p-6 rounded-lg shadow-md">
             <ul class="space-y-4">
                 <li>
-                    <a href="{% url 'sms_feature:inbox_sms' %}" class="block bg-blue-100 text-blue-700 font-medium py-3 px-4 rounded-lg hover:bg-blue-200 transition duration-200">
-                        📩 View Inbox Messages
+                    <a href="{% url 'voice_feature:initiate_call' %}" class="block bg-blue-100 text-blue-700 font-medium py-3 px-4 rounded-lg hover:bg-blue-200 transition duration-200">
+                        📞 Initiate a Call
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'sms_feature:send_sms' %}" class="block bg-green-100 text-green-700 font-medium py-3 px-4 rounded-lg hover:bg-green-200 transition duration-200">
-                        ✉️ Create New Message
+                    <a href="{% url 'voice_feature:call_logs' %}" class="block bg-green-100 text-green-700 font-medium py-3 px-4 rounded-lg hover:bg-green-200 transition duration-200">
+                        📋 View Call Logs
                     </a>
                 </li>
             </ul>

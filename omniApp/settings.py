@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'users',
     'email_feature', 
     'sms_feature',
+    'voice_feature',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -160,3 +161,5 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
 TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN')
 TWILIO_PHONE_NUMBER = config('TWILIO_PHONE_NUMBER')
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'd7f0-112-206-75-24.ngrok-free.app']
