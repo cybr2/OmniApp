@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'email_feature', 
     'sms_feature',
     'voice_feature',
+    'chat_feature',
+    'channels',
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -163,3 +166,11 @@ TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN')
 TWILIO_PHONE_NUMBER = config('TWILIO_PHONE_NUMBER')
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'd7f0-112-206-75-24.ngrok-free.app']
+
+ASGI_APPLICATION = 'omniApp.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}

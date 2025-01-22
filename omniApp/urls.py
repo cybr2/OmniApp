@@ -28,4 +28,6 @@ urlpatterns = [
     path('email_feature/', include('email_feature.urls')),
     path('sms_feature/', include('sms_feature.urls')),
     path('voice_feature/', include('voice_feature.urls')),
+    path('chat_feature/', include('chat_feature.urls')),
+
 ]

@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Send Email
+{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block main %}
+<section class="bg-gray-100 text-gray-900 flex items-start justify-center h-screen">
+
+    <div class="w-full max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
+        <h1 class="text-2xl font-bold mb-4">Room: {{ room_name }}</h1>
+        
+        <!-- Search Form -->
+        <form method="get" class="mb-6">
+            <input type="text" name="search" value="{{ search_query }}" placeholder="Search messages..." class="form-control w-full p-3 border border-gray-300 rounded-lg">
+            <button type="submit" class="btn btn-primary mt-2 w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Search</button>
+        </form>
+
+        <!-- Chat Messages -->
+        <div id="chat-messages" class="overflow-y-auto h-64 mb-4">
+            {% for chat in chats %}
+                <div class="chat-message mb-2">
+                    <strong>{{ chat.sender.username }}:</strong>
+                    <p>{{ chat.content }}</p>
+                    <small class="text-gray-500">{{ chat.timestamp }}</small>
+                </div>
+            {% empty %}
+                <p>No messages found.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination mb-4">
+            <span>Page {{ chats.number }} of {{ chats.paginator.num_pages }}</span>
+            <div class="space-x-2 mt-2">
+                {% if chats.has_previous %}
+                    <a href="?page=1&search={{ search_query }}" class="px-4 py-2 bg-gray-200 rounded-lg">First</a>
+                    <a href="?page={{ chats.previous_page_number }}&search={{ search_query }}" class="px-4 py-2 bg-gray-200 rounded-lg">Previous</a>
+                {% endif %}
+                {% if chats.has_next %}
+                    <a href="?page={{ chats.next_page_number }}&search={{ search_query }}" class="px-4 py-2 bg-gray-200 rounded-lg">Next</a>
+                    <a href="?page={{ chats.paginator.num_pages }}&search={{ search_query }}" class="px-4 py-2 bg-gray-200 rounded-lg">Last</a>
+                {% endif %}
+            </div>
+        </div>
+
+        
+
+        <!-- Message Input -->
+        <div class="flex items-center space-x-4 mb-4">
+            <input 
+                id="chat-message-input" 
+                type="text" 
+                class="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                placeholder="Type your message here..." 
+            >
+            <button 
+                id="chat-message-submit" 
+                class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition">
+                Send
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const roomName = "{{ room_name }}";
+        const chatSocket = new WebSocket(
+            `ws://${window.location.host}/ws/chat/${roomName}/`
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const chatMessages = document.querySelector('#chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message', 'mb-2');
+            messageDiv.innerHTML = `<strong>${data.sender}</strong>: <p>${data.message}</p><small class="text-gray-500">${data.timestamp}</small>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value.trim();
+            if (message) {
+                chatSocket.send(JSON.stringify({'message': message}));
+                messageInputDom.value = '';
+            }
+        };
+    </script>
+
+</section>
+{% endblock %}
