@@ -1,0 +1,58 @@
+{% extends "./layout.html" %}
+
+{% block title %}
+    Messages from {{ sender }}
+{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block header %}
+<nav class="bg-blue-600 text-white py-4 shadow-lg">
+    <div class="container mx-auto flex justify-between items-center px-4">
+        <h2 class="text-2xl font-bold">OmniApp</h2>
+        <ul class="flex space-x-6">
+            <li><a href="{% url 'home' %}" class="hover:text-blue-300">Home</a></li>
+            <li><a href="/chat" class="hover:text-blue-300">Chat</a></li>
+            <li><a href="/voice" class="hover:text-blue-300">Voice</a></li>
+            <li><a href="/video" class="hover:text-blue-300">Video</a></li>
+            <li><a href="{% url 'email_feature:receive_emails' %}" class="hover:text-blue-300">Emails</a></li>
+            <li><a href="{% url 'sms_feature:index' %}" class="hover:text-blue-300">SMS</a></li>
+            <li><a href="{% url 'login' %}" class="hover:text-blue-300">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+{% endblock %}
+
+{% block main %}
+<section class="bg-gray-50 py-12">
+    <div class="container mx-auto px-4">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">Messages from {{ sender }}</h1>
+
+        {% if error %}
+        <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            <p><strong>Error:</strong> {{ error }}</p>
+        </div>
+        {% endif %}
+
+        {% if messages %}
+        <div class="bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">Messages:</h2>
+            <ul class="space-y-4">
+                {% for msg in messages %}
+                <li class="bg-gray-100 p-4 rounded-lg">
+                        <div class="text-sm text-gray-600">
+                            <strong>To:</strong> {{ msg.to }} <br>
+                            <strong>Date Sent:</strong> {{ msg.date_sent|date:"F j, Y, g:i a" }} <br>
+                            <strong>Message:</strong> {{ msg.body}}...
+                        </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% else %}
+        <p>No messages found for this sender.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'social_django',
     'users',
     'email_feature', 
+    'sms_feature',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -154,3 +155,8 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
 #     'https://www.googleapis.com/auth/userinfo.email',
 #     'https://www.googleapis.com/auth/userinfo.profile',
 ]
+
+
+TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = config('TWILIO_PHONE_NUMBER')
