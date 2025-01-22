@@ -29,7 +29,7 @@ def send_email_view(request):
             response = requests.get(user_info_url, headers=headers)
             sender_email = response.json().get('email')
         except Exception as e:
-            return render(request, "error.html", {"error_code": 500, "error_message": f"Error fetching user email: {e}"})
+            return render(request, "email_feature/error.html", {"error_code": 500, "error_message": f"Error fetching user email: {e}"})
 
         # Process attachments
         attachments = []
@@ -48,18 +48,18 @@ def send_email_view(request):
             # Clean up temporary files
             for attachment in attachments:
                 default_storage.delete(attachment)
-            return render(request, "success.html", {"message_id": response['id']})
+            return render(request, "email_feature/success.html", {"message_id": response['id']})
         except Exception as e:
-            return render(request, "error.html", {"error_code": 500, "error_message": f"Error sending email: {e}"})
+            return render(request, "email_feature/error.html", {"error_code": 500, "error_message": f"Error sending email: {e}"})
     
-    return render(request, "send_email.html")
+    return render(request, "email_feature/send_email.html")
 
 def receive_email_view(request):
     try:
         # Get the authenticated user's Google credentials
         social_auth = UserSocialAuth.objects.get(user=request.user, provider="google-oauth2")
     except UserSocialAuth.DoesNotExist:
-        return render(request, "error.html", {
+        return render(request, "email_feature/error.html", {
             "error_code": 403,
             "error_message": "Google authentication not found for the user."
         })
@@ -68,7 +68,7 @@ def receive_email_view(request):
     access_token = social_auth.extra_data.get('access_token')
 
     if not access_token:
-        return render(request, "error.html", {
+        return render(request, "email_feature/error.html", {
             "error_code": 403,
             "error_message": "Google OAuth token not available."
         })
@@ -79,12 +79,12 @@ def receive_email_view(request):
         email_data = gmail_service.get_received_emails(max_results=5)
 
         if email_data:
-            return render(request, "receive_emails.html", {'emails': email_data})
+            return render(request, "email_feature/receive_emails.html", {'emails': email_data})
         else:
-            return render(request, "receive_emails.html", {'emails': [], 'message': "No emails found."})
+            return render(request, "email_feature/receive_emails.html", {'emails': [], 'message': "No emails found."})
 
     except Exception as e:
-        return render(request, "error.html", {
+        return render(request, "email_feature/email_feature/error.html", {
             "error_code": 500,
             "error_message": str(e)
         })

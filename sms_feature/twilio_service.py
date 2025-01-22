@@ -2,12 +2,13 @@ from twilio.rest import Client
 from django.conf import settings
 
 client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-def send_sms(to_number, message):
+def send_sms(to_number, message, media_url):
     try:
         sms_message = client.messages.create(
             body=message,
             from_=settings.TWILIO_PHONE_NUMBER,
-            to=to_number
+            to=to_number,
+            media_url=[media_url] if media_url else None
         )
         print(f"Message SID: {sms_message.sid}, Status: {sms_message.status}")
         return sms_message.sid
@@ -44,4 +45,4 @@ def get_message_by_sender(sender):
     except Exception as e:
         raise Exception(f"Error fetching messages for sender {sender}: {e}")
 
-
+# def call()

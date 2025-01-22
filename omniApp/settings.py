@@ -60,8 +60,8 @@ ROOT_URLCONF = 'omniApp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # Global templates
+        'APP_DIRS': True,  # Include app-specific templates
         'OPTIONS': {
             'context_processors': [
                 'social_django.context_processors.backends',

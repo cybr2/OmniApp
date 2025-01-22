@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Send SMS
+{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block header %}
+<nav class="bg-blue-600 text-white py-4 shadow-lg">
+    <div class="container mx-auto flex justify-between items-center px-4">
+        <h2 class="text-2xl font-bold">OmniApp</h2>
+        <ul class="flex space-x-6">
+            <li><a href="{% url 'home' %}" class="hover:text-blue-300">Home</a></li>
+            <li><a href="/chat" class="hover:text-blue-300">Chat</a></li>
+            <li><a href="/voice" class="hover:text-blue-300">Voice</a></li>
+            <li><a href="/video" class="hover:text-blue-300">Video</a></li>
+            <li><a href="{%url 'email_feature:receive_emails'%}" class="hover:text-blue-300">Emails</a></li>
+            <li><a href="{% url 'sms_feature:index' %}" class="hover:text-blue-300">SMS</a></li>
+            <li><a href="{% url 'login' %}" class="hover:text-blue-300">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+{% endblock %}
+
+{% block main %}
+<section class="bg-gray-50 py-12">
+    <div class="container mx-auto px-4">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">Send SMS</h1>
+
+        {% if error %}
+        <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            <p><strong>Error:</strong> {{ error }}</p>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'sms_feature:send_sms' %}" class="bg-white shadow-md rounded-lg p-6">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="to_number" class="block text-gray-700 font-medium mb-2">Recipient Phone Number:</label>
+                <input type="tel" id="to_number" name="to_number" placeholder="+1234567890" required
+                    class="w-full border-gray-300 rounded-lg bg-gray-200 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div class="mb-4">
+                <label for="message" class="block text-gray-700 font-medium mb-2">Message:</label>
+                <textarea id="message" name="message" rows="4" placeholder="Enter your message here" required
+                    class="bg-gray-200 w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label for="media_url" class="block text-gray-700 font-medium mb-2">Media URL (Optional):</label>
+                <input type="text" id="media_url" name="media_url" placeholder="https://example.com/media.jpg"
+                    class="w-full border-gray-300 rounded-lg bg-gray-200 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit"
+                    class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-blue-700">
+                    Send SMS
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

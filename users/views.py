@@ -6,7 +6,7 @@ def login(request):
 
 @login_required
 def home(request):
-    return render(request, 'home.html')
+    return render(request, 'users/home.html')
 
 def index(request):
     return render(request, 'index.html')  # Adjust the template path as needed
