@@ -54,16 +54,6 @@ def chat_room(request, room_name):
             'last_message': last_message
         })
 
-    # Sort user_last_messages by the timestamp of the last message in descending order
-    # user_last_messages = []
-    # for user in users:
-    #     last_message = Message.objects.filter((Q(sender=request.user) & Q(receiver=user)) | (Q(receiver=request.user) & Q(sender=user))).order_by('-timestamp').first()
-
-    #     user_last_messages.append({
-    #         'user': user,
-    #         'last_message': last_message
-    #     })
-
     return render(request, 'chat_feature/chat_room.html', {
         'room_name': room_name,
         'chats': page_obj,  # Use paginated chats

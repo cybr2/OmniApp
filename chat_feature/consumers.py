@@ -3,6 +3,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth.models import User
 from .models import Message
 from asgiref.sync import sync_to_async
+from django.utils import timezone
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -32,7 +33,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender = self.scope['user']
         receiver = await self.get_receiver_user()
 
-        await self.save_message(sender, receiver, message)
+        message_instance = await self.save_message(sender, receiver, message)
+        timestamp = timezone.localtime(message_instance.timestamp).strftime("%b. %d, %Y, %I:%M %p")
 
         # Broadcast message to the group
         await self.channel_layer.group_send(
@@ -41,7 +43,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'type': 'chat_message',
                 'sender': sender.username,
                 'receiver': receiver.username,
-                'message': message
+                'message': message,
+                'timestamp': timestamp
             }
         )
     
@@ -49,17 +52,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = event['message']
         sender = event['sender']
         receiver = event['receiver']
+        timestamp = event['timestamp']
 
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
             'sender': sender,
             'receiver': receiver,
-            'message': message
+            'message': message,
+            'timestamp': timestamp
         }))
     
     @sync_to_async
     def save_message(self, sender, receiver, message):
-        Message.objects.create(sender=sender, receiver=receiver, content=message)
+        return Message.objects.create(sender=sender, receiver=receiver, content=message)
 
     @sync_to_async
     def get_receiver_user(self):
