@@ -1,13 +1,15 @@
 from twilio.rest import Client
 from django.conf import settings
 
+
 client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+
 
 def make_call(to_number):
     try:
         call = client.calls.create(
             # record=True,
-            url="http://demo.twilio.com/docs/voice.xml",
+            url="https://2af3-112-206-75-24.ngrok-free.app/voice/",
             to=to_number,
             from_=settings.TWILIO_PHONE_NUMBER
         )

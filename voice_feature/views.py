@@ -2,6 +2,8 @@ from django.shortcuts import render
 from datetime import datetime, timedelta
 from .twilio_call_service import get_call_logs, make_call
 from phonenumbers import parse, is_valid_number, format_number, PhoneNumberFormat
+from django.http import HttpResponse
+from twilio.twiml.voice_response import VoiceResponse
 
 
 def sanitize_phone_number(phone_number, default_country='PH'):
@@ -39,6 +41,16 @@ def initiate_call_view(request):
         'call_sid': call_sid,
         'error_message': error_message
     })
+
+def voice_response(request):
+    """Generate a TwiML response for the call."""
+    resp = VoiceResponse()
+    resp.say("Hello, this is a test call from Twilio.", voice="alice")
+    resp.record(max_length=30, play_beep=True)
+    resp.hangup()
+    return HttpResponse(str(resp), content_type="text/xml")
+
+
 
 def call_logs_view(request):
     # Fetch call logs for the past 30 days as an example

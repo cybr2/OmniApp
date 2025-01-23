@@ -7,4 +7,5 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('initiate_call/', views.initiate_call_view, name='initiate_call'),
     path('call_logs/', views.call_logs_view, name='call_logs'),
+    path('voice/', views.voice_response, name='voice_response'),
 ]
