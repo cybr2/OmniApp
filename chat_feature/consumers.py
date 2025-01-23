@@ -4,6 +4,10 @@ from django.contrib.auth.models import User
 from .models import Message
 from asgiref.sync import sync_to_async
 from django.utils import timezone
+import base64
+import uuid 
+from django.core.files.base import ContentFile
+from django.conf import settings
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -36,23 +40,49 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        message = data['message']
+        message = data.get('message', '').strip()
         sender = self.scope['user']
         receiver = await self.get_receiver_user()
 
-        message_instance = await self.save_message(sender, receiver, message)
+        file_data = data.get('file')
+
+        # If there's a file, process it
+        if file_data:
+            file_name = file_data.get('name', f'{uuid.uuid4()}')
+            file_content = base64.b64decode(file_data['content'].split(',')[1])
+            file_obj = ContentFile(file_content, name=file_name)
+            message_instance = await self.save_message(sender, receiver, message, file_obj)
+        elif message:  # If there's no file, but there's a message
+            message_instance = await self.save_message(sender, receiver, message)
+        else:
+            # If neither message nor file is provided, we just return (no action)
+            return
         timestamp = timezone.localtime(message_instance.timestamp).strftime("%b. %d, %Y, %I:%M %p")
+
+        broadcast_data = {
+            'type': 'chat_message',
+            'sender': sender.username,
+            'receiver': receiver.username,
+            'message': message,
+            'timestamp': timestamp
+        }
+
+        if file_data:
+            file_url = message_instance.file.url
+            if file_url.startswith(settings.MEDIA_URL):
+                file_url = file_url[len(settings.MEDIA_URL):]
+            full_file_url = f"{settings.MEDIA_URL}{file_url}"  # Ensure the full URL
+            print(f"File URL: {full_file_url}") # Debugging print
+            broadcast_data['file'] = {
+                'name': file_name,
+                'url': full_file_url if message_instance.file else None
+            }
+
 
         # Broadcast message to the group
         await self.channel_layer.group_send(
             self.room_group_name,
-            {
-                'type': 'chat_message',
-                'sender': sender.username,
-                'receiver': receiver.username,
-                'message': message,
-                'timestamp': timestamp
-            }
+            broadcast_data
         )
     
     async def chat_message(self, event):
@@ -61,18 +91,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
         receiver = event['receiver']
         timestamp = event['timestamp']
 
+        file_data = event.get('file')
+
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
             'type': 'chat_message',
             'sender': sender,
             'receiver': receiver,
             'message': message,
-            'timestamp': timestamp
+            'timestamp': timestamp,
+            'file': file_data
         }))
     
     @sync_to_async
-    def save_message(self, sender, receiver, message):
-        return Message.objects.create(sender=sender, receiver=receiver, content=message)
+    def save_message(self, sender, receiver, message, file=None):
+        return Message.objects.create(sender=sender, receiver=receiver, content=message, file=file)
 
     @sync_to_async
     def get_receiver_user(self):
@@ -95,6 +128,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender': message.sender.username,
             'receiver': message.receiver.username,
             'message': message.content,
+            'file': {
+                'name': message.file.name.split('/')[-1] if message.file else None,
+                'url': message.file.url if message.file else None
+            } if hasattr(message, 'file') else None,
             'timestamp': timezone.localtime(message.timestamp).strftime("%b. %d, %Y, %I:%M %p")
         }
         for message in messages

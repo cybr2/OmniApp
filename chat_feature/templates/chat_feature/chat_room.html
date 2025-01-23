@@ -57,6 +57,20 @@
                 class="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
                 placeholder="Type your message here..." 
             >
+            <!-- File Input -->
+            <input 
+                type="file" 
+                id="file-input" 
+                class="hidden"
+                multiple
+            >
+            <button 
+                id="attach-file-btn" 
+                class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+                title="Attach File"
+            >
+                📎
+            </button>
             <button 
                 id="chat-message-submit" 
                 class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition">
@@ -72,38 +86,103 @@
     );
 
     const chatMessages = document.querySelector('#chat-messages');
+    const fileInput = document.getElementById('file-input');
 
     // Function to auto-scroll to the bottom
     const scrollToBottom = () => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     };
 
+    document.getElementById('attach-file-btn').addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const messageInputDom = document.querySelector('#chat-message-input');
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                chatSocket.send(JSON.stringify({
+                    'message': messageInputDom.value || '',
+                    'file': {
+                        'name': file.name,
+                        'type': file.type,
+                        'content': event.target.result
+                    }
+                }));
+                
+                // Clear inputs
+                messageInputDom.value = '';
+                fileInput.value = '';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
     chatSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);
         const chatMessages = document.querySelector('#chat-messages');
 
+        const createAttachmentElement = (file) => {
+            if (!file || !file.name) return '';
+
+            const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+            const fileExt = file.name.split('.').pop().toLowerCase();
+
+            // Debug log to see if the file URL is being passed correctly
+            console.log("Received file URL:", file.url);
+
+            if (imageExtensions.includes(fileExt)) {
+                return `
+                    <img src="${file.url}?t=${new Date().getTime()}" alt="${file.name}" 
+                        class="max-w-full h-auto mb-2 rounded-lg" 
+                        onclick="window.open('${file.url}', '_blank')" 
+                        style="cursor: pointer;">
+                `;
+            } else {
+                return `
+                    <a href="${file.url}" 
+                    download="${file.name}" 
+                    class="text-blue-500 hover:underline">
+                        Download: ${file.name}
+                    </a>
+                `;
+            }
+        };
+
         if (data.type === 'chat_history') {
             // Clear and replace entire chat history
-            chatMessages.innerHTML = data.messages.map(msg => `
-                <div class="chat-message mb-2">
-                    <strong>${msg.sender}</strong>: 
-                    <p>${msg.message}</p>
-                    <small class="text-gray-500">${msg.timestamp}</small>
-                </div>
-            `).join('');
+            chatMessages.innerHTML = data.messages.map(msg => {
+                let messageHtml = `
+                    <div class="chat-message mb-2">
+                        <strong>${msg.sender}</strong>: 
+                        <p>${msg.message || ''}</p>
+                        ${msg.file ? createAttachmentElement(msg.file) : ''}
+                        <small class="text-gray-500">${msg.timestamp}</small>
+                    </div>
+                `;
+                return messageHtml;
+            }).join('');
             scrollToBottom();
         } else if (data.type === 'chat_message') {
             // Append only new message
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('chat-message', 'mb-2');
+            
             messageDiv.innerHTML = `
                 <strong>${data.sender}</strong>: 
-                <p>${data.message}</p>
-                <small class="text-gray-500">${data.timestamp}</small>`;
+                <p>${data.message || ''}</p>
+                ${data.file ? createAttachmentElement(data.file) : ''}
+                <small class="text-gray-500">${data.timestamp}</small>
+            `;
+
             chatMessages.appendChild(messageDiv);
             scrollToBottom();
         }
     };
+
     chatSocket.onclose = function (e) {
         console.error('Chat socket closed unexpectedly');
         const closeMessage = document.createElement('div');
@@ -125,6 +204,7 @@
     window.addEventListener('beforeunload', () => {
         chatSocket.close();
     });
+
 </script>
 
 
