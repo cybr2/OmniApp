@@ -65,35 +65,68 @@
         </div>
     </div>
 
-    <script>
-        const roomName = "{{ room_name }}";
-        const chatSocket = new WebSocket(
-            `ws://${window.location.host}/ws/chat/${roomName}/`
-        );
+<script>
+    const roomName = "{{ room_name }}";
+    const chatSocket = new WebSocket(
+        `ws://${window.location.host}/ws/chat/${roomName}/`
+    );
 
-        chatSocket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
-            const chatMessages = document.querySelector('#chat-messages');
+    const chatMessages = document.querySelector('#chat-messages');
+
+    // Function to auto-scroll to the bottom
+    const scrollToBottom = () => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    };
+
+    chatSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        const chatMessages = document.querySelector('#chat-messages');
+
+        if (data.type === 'chat_history') {
+            // Clear and replace entire chat history
+            chatMessages.innerHTML = data.messages.map(msg => `
+                <div class="chat-message mb-2">
+                    <strong>${msg.sender}</strong>: 
+                    <p>${msg.message}</p>
+                    <small class="text-gray-500">${msg.timestamp}</small>
+                </div>
+            `).join('');
+            scrollToBottom();
+        } else if (data.type === 'chat_message') {
+            // Append only new message
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('chat-message', 'mb-2');
-            messageDiv.innerHTML = `<strong>${data.sender}</strong>: <p>${data.message}</p><small class="text-gray-500">${data.timestamp}</small>`;
+            messageDiv.innerHTML = `
+                <strong>${data.sender}</strong>: 
+                <p>${data.message}</p>
+                <small class="text-gray-500">${data.timestamp}</small>`;
             chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
-        };
+            scrollToBottom();
+        }
+    };
+    chatSocket.onclose = function (e) {
+        console.error('Chat socket closed unexpectedly');
+        const closeMessage = document.createElement('div');
+        closeMessage.classList.add('text-danger', 'mt-3');
+        closeMessage.textContent = 'Connection lost. Please refresh the page.';
+        document.body.appendChild(closeMessage);
+    };
 
-        chatSocket.onclose = function(e) {
-            console.error('Chat socket closed unexpectedly');
-        };
+    document.querySelector('#chat-message-submit').onclick = function (e) {
+        const messageInputDom = document.querySelector('#chat-message-input');
+        const message = messageInputDom.value.trim();
+        if (message) {
+            chatSocket.send(JSON.stringify({ 'message': message }));
+            messageInputDom.value = ''; // Clear input field
+        }
+    };
 
-        document.querySelector('#chat-message-submit').onclick = function(e) {
-            const messageInputDom = document.querySelector('#chat-message-input');
-            const message = messageInputDom.value.trim();
-            if (message) {
-                chatSocket.send(JSON.stringify({'message': message}));
-                messageInputDom.value = '';
-            }
-        };
-    </script>
+    // Optional: Cleanup WebSocket on page unload
+    window.addEventListener('beforeunload', () => {
+        chatSocket.close();
+    });
+</script>
+
 
 </section>
 {% endblock %}

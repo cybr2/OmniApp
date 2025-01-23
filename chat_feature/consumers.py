@@ -20,6 +20,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
         await self.accept()
 
+        # Fetch chat history and send to the client
+        chat_history = await self.get_chat_history(user1, user2)
+        await self.send(text_data=json.dumps({
+            'type': 'chat_history',
+            'messages': chat_history
+        }))
+
     async def disconnect(self, close_code):
         # Leave room group
         await self.channel_layer.group_discard(
@@ -56,6 +63,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
+            'type': 'chat_message',
             'sender': sender,
             'receiver': receiver,
             'message': message,
@@ -69,3 +77,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @sync_to_async
     def get_receiver_user(self):
         return User.objects.get(username=self.room_name)
+    
+    @sync_to_async
+    def get_chat_history(self, user1, user2):
+        # Fetch the user objects based on the provided usernames
+        user1 = User.objects.get(username=user1)
+        user2 = User.objects.get(username=user2)
+        # Fetch messages where sender or receiver is either user1 or user2
+        messages = Message.objects.filter(
+            sender__in=[user1.id, user2.id],  # Use the user ids, not the objects themselves
+            receiver__in=[user1.id, user2.id]  # Use the user ids, not the objects themselves
+        ).order_by('timestamp')
+
+        # Format messages for sending
+        return [
+        {
+            'sender': message.sender.username,
+            'receiver': message.receiver.username,
+            'message': message.content,
+            'timestamp': timezone.localtime(message.timestamp).strftime("%b. %d, %Y, %I:%M %p")
+        }
+        for message in messages
+    ]
